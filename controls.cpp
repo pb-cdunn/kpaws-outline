@@ -1,23 +1,36 @@
 // "Globals" (attached to WebService?)
 class Globals {
     ProcessRegister preg;
-    map<Sid, ProcessingDarkcal> dpreg;
-    map<Sid, ProcessingLoadingcal> lpreg;
-    map<Sid, ProcessingBasecaller> bpreg;
-    map<Mid, ProcessingPpa> ppreg;
+    DarkCalRegister dpreg;
+    LoadingCalRegister lpreg;
+    BasecallerRegister bpreg;
+    PpaRegister ppreg;
 };
 
 
 // thread-safe
 class ProcessRegister {
-    ProcessController* Find(int pid);
+    ProcessController* Find(int pid) const;
     ProcessController* Pop(int pid); // idempotent!
-    vector<ProcessController*> All();
+    vector<ProcessController*> All() const;
+    void Register(int pid, pc); // pid is also in pc, but maybe explicit is better.
 
     map<int, ProcessController*> pcs;
     // Key is probably just PID.
     // But what if O/S reuses PIDs? Race-condition? Should we worry?
 };
+
+// thread-safe
+class BasecallerRegister {
+    BasecallerProcessController* Find(string sid) const;
+    void Register(string sid, BasecallerProcessController* pc);
+
+    map<string, BasecallerProcessController*> pcs;
+};
+
+// class DarkcalRegister
+// class LoadingcalRegister
+// class PpaRegister
 
 // thread-safe and reference-counted
 class ProcessController {
